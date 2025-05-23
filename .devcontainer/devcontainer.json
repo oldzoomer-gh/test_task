@@ -8,15 +8,18 @@
 	"features": {
 		"ghcr.io/devcontainers/features/java:1": {
 			"installGradle": true,
-			"installMaven": false,
-			"version": "21"
+			"version": "21",
+			"jdkDistro": "ms"
 		},
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {
 			"azureDnsAutoDetection": true,
 			"installDockerBuildx": true,
-			"installDockerComposeSwitch": true,
 			"version": "latest",
-			"dockerDashComposeVersion": "latest"
+			"dockerDashComposeVersion": "v2"
+		},
+		"ghcr.io/devcontainers/features/node:1": {
+			"nodeGypDependencies": true,
+			"version": "lts"
 		}
 	},
 	"customizations": {
