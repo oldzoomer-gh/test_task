@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import ru.oldzoomer.test_task.dto.WebAppInitDataDto;
 import ru.oldzoomer.test_task.entity.WebAppInitData;
@@ -18,8 +19,10 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/auth")
-    public void postMethodName(@RequestBody WebAppInitDataDto webAppInitDataDto) {
+    public void postMethodName(@RequestBody WebAppInitDataDto webAppInitDataDto, HttpSession session) {
         WebAppInitData entity = webAppInitDataMapper.toEntity(webAppInitDataDto);
-        authService.auth(entity);
+        if (authService.validate(entity)) {
+            session.setAttribute("user", entity.user());
+        }
     }
 }

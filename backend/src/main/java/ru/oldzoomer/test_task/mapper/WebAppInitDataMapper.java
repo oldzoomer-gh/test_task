@@ -7,11 +7,7 @@ import ru.oldzoomer.test_task.entity.WebAppInitData;
 
 @Mapper
 public interface WebAppInitDataMapper {
-    WebAppInitDataDto toDto(WebAppInitData entity);
-
     WebAppInitData toEntity(WebAppInitDataDto dto);
-
-    WebAppInitDataDto.Chat toDto(WebAppInitData.Chat entity);
 
     WebAppInitData.Chat toEntity(WebAppInitDataDto.Chat dto);
 
