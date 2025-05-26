@@ -5,7 +5,7 @@ import org.mapstruct.Mapper;
 import ru.oldzoomer.test_task.dto.WebAppInitDataDto;
 import ru.oldzoomer.test_task.entity.WebAppInitData;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface WebAppInitDataMapper {
     WebAppInitData toEntity(WebAppInitDataDto dto);
 
