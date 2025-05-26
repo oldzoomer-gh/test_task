@@ -1,43 +1,40 @@
-import type { Telegram } from "@twa-dev/types";
-
-declare global {
-  interface Window {
-    Telegram: Telegram;
-  }
-}
+import { init, retrieveRawInitData } from '@telegram-apps/sdk';
 
 export default function Home() {
-  auth();
+  init();
+  
+  if (document.cookie.length === 0) {
+    auth();
+  }
+
   const userInfoData = userInfo();
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
+    <main className="flex min-h-screen flex-col justify-center items-center p-10">
+      <div className="flex flex-col max-w-5xl w-full justify-center items-center text-sm">
         <h1>Hello, {userInfoData.username}</h1>
         <h1>Your real name is {userInfoData.first_name} {userInfoData.last_name}</h1>
         <h1>Your id is {userInfoData.id}</h1>
         <h1>Your language code is {userInfoData.language_code}</h1>
-        <h1>Your user is premium is {userInfoData.is_premium}</h1>
+        <h1>Premium is {userInfoData.is_premium}</h1>
       </div>
     </main>
   );
 }
 
 async function auth() {
-  const initData = window.Telegram.WebApp.initData;
-
-  await fetch(process.env.API_URL + '/auth', {
+  fetch(import.meta.env.VITE_API_URL + '/auth' as string, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8'
     },
-    body: JSON.stringify(initData),
+    body: JSON.stringify(retrieveRawInitData()),
     credentials: 'include'
-  }).then(res => res.json());
+  });
 }
 
 async function userInfo() {
-  return await fetch(process.env.API_URL + '/userInfo', {
+  return await fetch(import.meta.env.VITE_API_URL + '/userInfo' as string, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json;charset=utf-8'

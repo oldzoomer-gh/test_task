@@ -1,15 +1,19 @@
 package ru.oldzoomer.test_task.service.impl;
 
-import java.security.MessageDigest;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import ru.oldzoomer.test_task.entity.WebAppInitData;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.servlet.http.HttpSession;
 import ru.oldzoomer.test_task.service.AuthService;
+import ru.oldzoomer.test_task.utils.TelegramWebApp;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -17,44 +21,12 @@ public class AuthServiceImpl implements AuthService {
     private String botToken;
 
     @Override
-    public boolean validate(WebAppInitData webAppInitData) {
-        if (webAppInitData == null) {
-            return false;
-        }
-
-        String dataCheckString = Arrays.stream(new String[]{
-                "auth_date=" + webAppInitData.authDate(),
-                "query_id=" + webAppInitData.queryId(),
-                "user=" + webAppInitData.user().id(),
-                "hash=" + webAppInitData.hash()
-        }).sorted().collect(Collectors.joining("\n"));
-
-        String secretKey = MessageDigest.isEqual(
-                dataCheckString.getBytes(),
-                webAppInitData.hash().getBytes()
-        ) ? botToken : null;
-
-        if (secretKey == null) {
-            return false;
-        }
-
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashBytes = md.digest((dataCheckString + secretKey).getBytes());
-            String calculatedHash = bytesToHex(hashBytes);
-
-            return calculatedHash.equals(webAppInitData.hash());
-        } catch (NoSuchAlgorithmException e) {
-            return false;
+    public void auth(String webAppInitData, HttpSession session) throws JsonProcessingException, InvalidKeyException,
+            UnsupportedEncodingException, NoSuchAlgorithmException {
+        Map<String, String> webAppInitDataMap = TelegramWebApp.parseInitData(webAppInitData, botToken);
+        if (session.getAttribute("user") == null
+                && !session.getAttribute("user").equals(webAppInitDataMap.get("user"))) {
+            session.setAttribute("user", webAppInitDataMap.get(new ObjectMapper().writeValueAsString(webAppInitDataMap)));
         }
     }
-
-    private String bytesToHex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
-    }
-    
 }

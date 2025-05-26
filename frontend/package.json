@@ -3,16 +3,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "env-cmd react-router build",
-    "dev": "env-cmd react-router dev",
-    "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "env-cmd react-router typegen && tsc"
+    "build": "react-router build",
+    "build:dev": "react-router build --mode development",
+    "dev": "react-router dev",
+    "start": "http-server -p 3000 ./build/client/",
+    "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
     "@react-router/node": "^7.5.3",
     "@react-router/serve": "^7.5.3",
-    "@twa-dev/types": "^8.0.2",
-    "env-cmd": "^10.1.0",
+    "@telegram-apps/sdk-react": "^3.3.0",
+    "http-server": "^14.1.1",
     "isbot": "^5.1.27",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

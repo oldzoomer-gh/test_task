@@ -1,0 +1,76 @@
+package ru.oldzoomer.test_task.utils;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+public class TelegramWebApp {
+
+    public static Map<String, String> parseInitData(String initData, String botToken)
+            throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException {
+        Map<String, String> params = new TreeMap<>();
+        if (initData != null) {
+            String[] pairs = initData.split("&");
+            for (String pair : pairs) {
+                int idx = pair.indexOf("=");
+                if (idx > 0) {
+                    String key = URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8.name());
+                    String value = URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8.name());
+                    params.put(key, value);
+                }
+            }
+        }
+
+        if (!validate(params, botToken)) {
+            throw new IllegalArgumentException("Invalid init data");
+        }
+
+        return params;
+    }
+
+    private static boolean validate(Map<String, String> params, String botToken)
+            throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+        String hash = params.remove("hash");
+        if (hash == null) {
+            return false;
+        }
+        String dataCheckString = createDataCheckString(params);
+        String computedHash = computeHash(dataCheckString, botToken);
+        return hash.equals(computedHash);
+    }
+
+    private static String createDataCheckString(Map<String, String> params) {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            sb.append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
+        }
+        return sb.toString();
+    }
+
+    private static String computeHash(String data, String botToken)
+            throws NoSuchAlgorithmException, InvalidKeyException {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(hmacSha256("WebAppData", botToken), "HmacSHA256");
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(secretKeySpec);
+        byte[] hashBytes = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+        StringBuilder sb = new StringBuilder();
+        for (byte b : hashBytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+
+    private static byte[] hmacSha256(String data, String secret) throws NoSuchAlgorithmException, InvalidKeyException {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(secretKeySpec);
+        return mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+    }
+}

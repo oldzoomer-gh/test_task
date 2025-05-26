@@ -1,7 +1,15 @@
 package ru.oldzoomer.test_task.service;
 
-import ru.oldzoomer.test_task.entity.WebAppInitData;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import jakarta.servlet.http.HttpSession;
 
 public interface AuthService {
-    boolean validate(WebAppInitData webAppInitData);
+    void auth(String webAppInitData, HttpSession session)
+        throws JsonProcessingException, InvalidKeyException,
+        UnsupportedEncodingException, NoSuchAlgorithmException;
 }

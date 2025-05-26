@@ -3,21 +3,23 @@ package ru.oldzoomer.test_task.controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import ru.oldzoomer.test_task.dto.WebAppInitDataDto;
-import ru.oldzoomer.test_task.entity.WebAppInitData;
-import ru.oldzoomer.test_task.mapper.WebAppInitDataMapper;
+import ru.oldzoomer.test_task.service.UserService;
 
 
 @RestController
 @RequiredArgsConstructor
 public class UserController {
-    private final WebAppInitDataMapper webAppInitDataMapper;
+    private final UserService userService;
 
     @GetMapping("/userInfo")
-    public WebAppInitDataDto.User getUser(HttpSession session) {
-        return (WebAppInitDataDto.User) webAppInitDataMapper.toDto(
-            (WebAppInitData.User) session.getAttribute("user"));
+    public JsonNode getUser(HttpSession session)
+        throws JsonMappingException, JsonProcessingException {
+        return userService.getUserInfo(session);
     }
 }
