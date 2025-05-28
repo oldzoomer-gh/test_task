@@ -1,15 +1,21 @@
 import { retrieveRawInitData } from '@telegram-apps/sdk';
+import { useEffect } from 'react';
 
 export default function Home() {
-  if (document.cookie.length === 0) {
-    auth();
-  }
+  const initData = retrieveRawInitData();
+  let userInfoData = {};
 
-  const userInfoData = userInfo();
+  useEffect(() => {
+    if (document.cookie.length === 0 && initData !== undefined) {
+      auth(initData);
+    }
+
+    userInfoData = userInfo();
+  }, []);
 
   return (
     <main className="flex min-h-screen flex-col justify-center items-center p-10">
-      <div className="flex flex-col max-w-5xl w-full justify-center items-center text-sm">
+      <div className="flex flex-col max-w-5xl w-full justify-center items-center text-xl">
         <h1>Hello, {userInfoData.username}</h1>
         <h1>Your real name is {userInfoData.first_name} {userInfoData.last_name}</h1>
         <h1>Your id is {userInfoData.id}</h1>
@@ -20,13 +26,13 @@ export default function Home() {
   );
 }
 
-async function auth() {
+async function auth(initData: string) {
   fetch(import.meta.env.VITE_API_URL + '/auth' as string, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/text;charset=utf-8'
     },
-    body: retrieveRawInitData(),
+    body: initData,
     credentials: 'include'
   });
 }

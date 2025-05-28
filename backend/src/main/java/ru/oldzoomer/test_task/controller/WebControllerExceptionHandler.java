@@ -24,7 +24,7 @@ public class WebControllerExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
-        log.error("Internal Server Error", e);
+        log.error("Internal Server Error", e.getMessage());
         return ResponseEntity.status(500).body("Internal Server Error");
     }
 }
