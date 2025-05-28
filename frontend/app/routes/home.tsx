@@ -1,8 +1,6 @@
-import { init, retrieveRawInitData } from '@telegram-apps/sdk';
+import { retrieveRawInitData } from '@telegram-apps/sdk';
 
 export default function Home() {
-  init();
-  
   if (document.cookie.length === 0) {
     auth();
   }
@@ -26,9 +24,9 @@ async function auth() {
   fetch(import.meta.env.VITE_API_URL + '/auth' as string, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json;charset=utf-8'
+      'Content-Type': 'application/text;charset=utf-8'
     },
-    body: JSON.stringify(retrieveRawInitData()),
+    body: retrieveRawInitData(),
     credentials: 'include'
   });
 }
