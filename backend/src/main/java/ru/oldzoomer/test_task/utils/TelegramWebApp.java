@@ -12,12 +12,23 @@ import java.util.stream.Collectors;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 public class TelegramWebApp {
 
     public static Map<String, String> parseInitData(String initData, String botToken) {
+        Map<String, String> params = parseQueryString(initData);
+        if (!validate(params, botToken)) {
+            throw new IllegalArgumentException("Invalid init data");
+        }
+        return params;
+    }
+
+    private static Map<String, String> parseQueryString(String queryString) {
         Map<String, String> params = new TreeMap<>();
-        if (initData != null) {
-            String[] pairs = initData.split("&");
+        if (queryString != null) {
+            String[] pairs = queryString.split("&");
             for (String pair : pairs) {
                 int idx = pair.indexOf("=");
                 if (idx > 0) {
@@ -26,16 +37,12 @@ public class TelegramWebApp {
                         String value = URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8.name());
                         params.put(key, value);
                     } catch (UnsupportedEncodingException e) {
-                        throw new RuntimeException(e);
+                        log.error("Error decoding URL parameter", e);
+                        throw new RuntimeException("Error decoding URL parameter", e);
                     }
                 }
             }
         }
-
-        if (!validate(params, botToken)) {
-            throw new IllegalArgumentException("Invalid init data");
-        }
-
         return params;
     }
 
@@ -49,6 +56,7 @@ public class TelegramWebApp {
             String computedHash = computeHash(dataCheckString, botToken);
             return hash.equals(computedHash);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            log.error("Error computing hash", e);
             return false;
         }
     }

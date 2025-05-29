@@ -22,9 +22,9 @@ public class WebControllerExceptionHandler {
         return ResponseEntity.status(400).body(e.getMessage());
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(Exception e) {
-        log.error("Internal Server Error", e.getMessage());
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
+        log.error("Runtime Exception", e);
         return ResponseEntity.status(500).body("Internal Server Error");
     }
 }
